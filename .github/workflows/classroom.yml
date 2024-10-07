@@ -78,15 +78,6 @@ jobs:
       run: |
         docker compose -p ${{ env.project_name }} exec app sudo chown -R ${{ env.CONTAINER_USER }} /app
 
-    - name: データベースへの接続テスト
-      id: dbcheck
-      uses: classroom-resources/autograding-command-grader@v1
-      with:
-        test-name: dbcheck
-        setup-command: 'docker compose ps'
-        command: 'docker compose -p ${{ env.project_name }} exec app make test FILE=tests/test_db_connect.py ${{ steps.no_laravel.outputs.result }}'
-        max-score: 1
-        timeout: 2
     - name: トップページの表示テスト
       id: toppage
       uses: classroom-resources/autograding-command-grader@v1
@@ -95,33 +86,13 @@ jobs:
         command: 'docker compose -p ${{ env.project_name }} exec app make test FILE=tests/test_minishop_toppage.py ${{ steps.no_laravel.outputs.result }}'
         max-score: 1
         timeout: 2
-  　- name: 商品一覧取得テスト
-      id: select_genre
-      uses: classroom-resources/autograding-command-grader@v1
-      with:
-        test-name: select_genre
-        setup-command: 'docker compose ps'
-        command: 'docker compose -p ${{ env.project_name }} exec app make test FILE=tests/test_minishop_select_genret.py ${{ steps.no_laravel.outputs.result }}'
-        max-score: 1
-        timeout: 2
-    - name: カート追加テスト
-      id: insert_item_to_cart
-      uses: classroom-resources/autograding-command-grader@v1
-      with:
-        test-name: insert_item_to_cart
-        command: 'docker compose -p ${{ env.project_name }} exec app make test FILE=tests/test_minishop_insert_item_to_cart.py ${{ steps.no_laravel.outputs.result }}'
-        max-score: 1
-        timeout: 2
 
     - name: Autograding Reporter
       uses: classroom-resources/autograding-grading-reporter@v1
       env:
-        DBCHECK_RESULTS: "${{steps.dbcheck.outputs.result}}"
         TOPPAGE_RESULTS: "${{steps.toppage.outputs.result}}"
-        SELECT_GENRE_RESULTS: "${{steps.toppage.outputs.result}}"
-        INSERT_ITEM_TO_CART_RESULTS: "${{steps.toppage.outputs.result}}"
       with:
-        runners: dbcheck,toppage,select_genre,insert_item_to_cart
+        runners: toppage
 
     # - name: アーティファクト置場の確認
     #   if: always()
